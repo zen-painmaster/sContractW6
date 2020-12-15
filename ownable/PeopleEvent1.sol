@@ -1,4 +1,5 @@
 import "./ownable.sol";
+import "./selfdestruct.sol";
 pragma solidity 0.5.12;
 
 contract PeopleEvent{
