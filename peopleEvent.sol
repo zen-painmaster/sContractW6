@@ -1,6 +1,6 @@
 pragma solidity 0.5.12;
 
-contract HelloWorld{
+contract PeopleEvent{
     
     struct Person{
         string name;
@@ -9,16 +9,16 @@ contract HelloWorld{
         address walletAdress;
         bool senior;
     }
-     // "bob", 24,150
+     // "bob", 24,190
     
-    event personCreated (string name, bool senior);
-    event personUpdated (string name, bool senior, adressUpdatedBy);
-    event personDeleted (string name, bool senior, addressDeletedBy);
+    event personCreated (string name, bool senior, address createdBy );
+    event personUpdated (string name, bool senior, address UpdatedBy );
+    event personDeleted (string name, bool senior, address DeletedBy );
     
-    adress public owner;
+    address public owner;
     
     modifier onlyOwner(){
-        require (msg.sender == owner );
+        require (msg.sender == owner, "Only owner granted action." );
         _;
     }
     
@@ -30,7 +30,7 @@ contract HelloWorld{
     address[] private creators;
      
      function createPerson (string memory name, uint age, uint height) public{
-         require (age >100, "Age must be below 100.");
+         require (age < 100, "Age must be below 100.");
          address creator = msg.sender;
         
         Person memory newPerson;
@@ -51,10 +51,10 @@ contract HelloWorld{
         assert ( 
             keccak256(
                 abi.encodePacked (
-                    people[mes.sender].name,
-                    people[mes.sender].age, 
-                    people[mes.sender].height,
-                    people[mes.sender].senior
+                    people[msg.sender].name,
+                    people[msg.sender].age, 
+                    people[msg.sender].height,
+                    people[msg.sender].senior
                 )
             )
             ==
@@ -67,41 +67,68 @@ contract HelloWorld{
                 )
             )
         ); 
-        emit personCreated (newPerson.name, newPerson.age,newPerson.senior);
+        emit personCreated (newPerson.name,newPerson.senior, msg.sender);
      }
         
-        function insertPerson(person memory newPerson){
+        function insertPerson(Person memory newPerson) internal{
             address creator = msg.sender;
             people[creator] = newPerson;
         }    
         
-        function getPerson(uint _index) public view returns(string memory name,uint age, uint height){
-            
-            return (people[creator].name, people[creator].age,people[creator].height);
+        function getPerson() public view returns(string memory name,uint age, uint height){
+            address creator = msg.sender;
+            return (people[creator].name, people[creator].age, people[creator].height);
             }
+        
+         function updatePerson (string memory name, uint age, uint height) public{
+         require (age < 100, "Age must be below 100.");
+         address creator = msg.sender;
+            require (creator == people[creator].walletAdress,"This person does not exist.");
+
+        Person memory newPerson;
+        newPerson.name = name;
+        newPerson.age = age;
+        newPerson.height = height;
+        
+        if (age >= 65) {
+            newPerson.senior = true ;
+        }
+        else{
+            newPerson.senior = false;
         }
         
-        function updatePerson(uint _index) public view returns (string memory name, uint age, bool senior){
-            string memory name = poeple[creator].name;
-            uint age =poeple[creator].age;
-            bool senior = poeple[creator].name;
-            
-            returns (people[creator].name, cpoeple[creator].age,poeple[creator].senior);
-             
-            emit personUpdated (name, bool senior, msg.sender);
+        assert ( 
+            keccak256(
+                abi.encodePacked (
+                    people[msg.sender].name,
+                    people[msg.sender].age, 
+                    people[msg.sender].height,
+                    people[msg.sender].senior
+                )
+            )
+            !=
+            keccak256(
+                abi.encodePacked(
+                newPerson.name,
+                newPerson.age,
+                newPerson.height,
+                newPerson.senior
+                )
+            )
+        );   
+            insertPerson(newPerson);
+            emit personUpdated (newPerson.name, newPerson.senior, msg.sender);
         }
         
         
-        function deletePerson (adress creator) public onlyOwner{
-            sting memory name= people[creator].name;
-            bool senior = people[creator].senior;
-            
+        function deletePerson (address creator) public onlyOwner{ 
             delete people [creator];
             assert (people[creator].age == 0);
-            emit personDeleted(name, senior, msg.sender);
+            emit personDeleted(people [creator].name, people [creator].senior, msg.sender);
         }
         
-        function getCreator (uint index) public view onlyOwner returns(adress) {
-            return creator [index];
+        function getCreator (uint index) public view onlyOwner returns(address) {
+            return creators [index];
         }
- 
+}
+  
