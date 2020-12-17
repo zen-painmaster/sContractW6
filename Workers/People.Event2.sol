@@ -2,7 +2,7 @@ import "./ownable.sol";
 import "./selfdestruct.sol";
 pragma solidity 0.5.12;
 
-contract PeopleEvent{
+contract PeopleEvent is Ownable {
     
     struct Person{
         string name;
@@ -23,7 +23,7 @@ contract PeopleEvent{
     mapping (address => Person) private people;
     address[] private creators;
      
-     function createPerson (string memory name, uint age, uint height) public{
+     function createPerson (string memory name, uint age, uint height) internal {
          require (age < 100, "Age must be below 100.");
          address creator = msg.sender;
         
